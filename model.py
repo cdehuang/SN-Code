@@ -66,7 +66,7 @@ for x in fnames:
     print "F_l", F_l
     F_v = F_l*(np.power(1.63,2))/(beta)
     print "F_v", F_v
-#this last number is in erg s^-1
+#this last number is in jansky
     AB = -2.5*np.log10(F_v) - 48.60
     print "AB", AB
     m_list.append(AB)
