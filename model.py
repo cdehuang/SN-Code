@@ -48,7 +48,9 @@ for x in fnames:
     tz_dat = z_dat[ind_2:ind]
     tz_width = tz_dat[:,2]
 
-    #integrate by summing
+    #integrate by summing--consider checking with their total bolometric luminosity, try checking the absolute magnitude of the source, somewhere in the range of
+    #Type 1a - 19.5, so this is probably -20 or brighter, check the redshift behavior, try a fixed section around the peak fo the spectrum
+    #k-correction extend filter to check
     lum = 0
     for x in tz_dat:
         val = min(range(len(filwv)), key = lambda i:abs(filwv[i] - x[0]))
