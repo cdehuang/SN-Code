@@ -89,7 +89,7 @@ dz_dat = np.asarray(dz_times)
 pyfits.writeto("z25B_7.fits", m_dat)
 pyfits.append("z25B_7.fits", dz_dat)
 
-#plot light curves
+#plot light curve
 plt.plot(dz_times, m_list)
 plt.gca().invert_yaxis()
 plt.xlim(0,1000)
