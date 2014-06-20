@@ -76,7 +76,7 @@ timedat = np.genfromtxt("LANL.CCSN.SPECTRA/z25B/s_d.list", dtype=None)
 times = timedat['f1']
 dz_times = (times*(1+z))/86400
 
-#check that there are no errors in the spectrum_dumps.list
+#check that there are no errors in the spectrum_dumps.list, add in the s_d.list code
 i = 0
 dirs = os.listdir('LANL.CCSN.SPECTRA/z25B/')
 dirs = dirs[4:len(dirs)]
