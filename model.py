@@ -31,7 +31,7 @@ m_list = []
 beta = 3E-13 #double checked with: http://www.stsci.edu/hst/nicmos/documents/handbooks/current_NEW/Appendix_B.14.3.html
 i = 0
 
-#need to do something about thus huge for loop
+#need to do something about this huge for loop
 for x in fnames:
     dat = np.loadtxt(x)
     wavelength = dat[:,0]
