@@ -10,6 +10,7 @@ from StringIO import StringIO
 import pyfits
 
 #change so that it is a function that takes in a supernova type (z25B, etc.), a redshift, and possible other things, and then returns a light curve. 
+#checked the bolometeric luminosity..it summed up on the order of 10^44 erg/s which seems about right to me. For the bandpass, it's 10-^39, which seems believable.
 
 filenames = []
 for root, dirs, files in os.walk('Lanl.ccsn.spectra/z25B'):
