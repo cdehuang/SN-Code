@@ -9,6 +9,8 @@ from scipy.integrate import quad
 from StringIO import StringIO
 import pyfits
 
+#change so that it is a function that takes in a supernova type (z25B, etc.), a redshift, and possible other things, and then returns a light curve. 
+
 filenames = []
 for root, dirs, files in os.walk('Lanl.ccsn.spectra/z25B'):
     for name in files:
@@ -71,21 +73,24 @@ for x in fnames:
     print "AB", AB
     m_list.append(AB)
 
-#multiply the times by (1+z) also
-timedat = np.genfromtxt("LANL.CCSN.SPECTRA/z25B/s_d.list", dtype=None)
-times = timedat['f1']
-dz_times = (times*(1+z))/86400
-
-#check that there are no errors in the spectrum_dumps.list, add in the s_d.list code
-i = 0
+#fixes errors in the spectrum_dumps.list without making a new s_d.list file
 dirs = os.listdir('LANL.CCSN.SPECTRA/z25B/')
-dirs = dirs[4:len(dirs)]
-names = timedat['f0']
-while (i < len(names)):
-    if names[i] == dirs[i]:
-	i += 1
+dirs = [i for i in dirs if re.match('....-.-dmp......',i) is not None]
+timedat = np.genfromtxt("LANL.CCSN.SPECTRA/z15B/spectrum_dumps.list", dtype=None, skip_header=1)
+i = 0
+n = 0
+while (i < len(names) -n):
+    if ((timedat['f0'])[i] == dirs[i]):
+        i += 1
+        #print "ok"
     else:
-        timedat = np.delete(timedat, i)
+        print i
+        n += 1
+        timedat = np.delete(timedat, i-1)
+
+times = timedat['f1']
+dz_times = (times*(1+z))/86400 #converting from seconds to days and multiplying by redshift
+names = timedat['f0']
             
 m_dat = np.asarray(m_list)
 dz_dat = np.asarray(dz_times)
