@@ -70,7 +70,7 @@ for x in fnames:
     F_v = F_l*(np.power(1.63,2))/(beta)
     print "F_v", F_v
 #this last number is in jansky
-    AB = -2.5*np.log10(F_v) - 48.60
+    AB = 2.5*(23-np.log10(F_v)) - 48.60 #fixed this, sort of. I thought the original formula was wrong, but could not figure out why. I must have misread the wikipedia page. Still off by about 4 orders of magnitude 
     print "AB", AB
     m_list.append(AB)
 
