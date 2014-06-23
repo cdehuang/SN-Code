@@ -80,7 +80,7 @@ dirs = [i for i in dirs if re.match('....-.-dmp......',i) is not None]
 timedat = np.genfromtxt("LANL.CCSN.SPECTRA/z15B/spectrum_dumps.list", dtype=None, skip_header=1)
 i = 0
 n = 0
-while (i < len(names) -n):
+while (i < len(timedat) -n):
     if ((timedat['f0'])[i] == dirs[i]):
         i += 1
         #print "ok"
