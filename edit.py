@@ -13,4 +13,4 @@ for root, dirs, files in os.walk('Lanl.ccsn.spectra/z40G'):
         #print filenames
 for line in fileinput.input(filenames, inplace=1):
     line = re.sub(r'(?<!E)-(?=\d{3})', 'E-', line)
-    #print line
+    print line,
