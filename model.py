@@ -13,21 +13,25 @@ import pyfits
 #checked the bolometeric luminosity..it summed up on the order of 10^44 erg/s which seems about right to me. For the bandpass, it's 10-^39, which seems believable.
 
 filenames = []
-for root, dirs, files in os.walk('Lanl.ccsn.spectra/z25B'):
+sn_type = 'z25b'
+redshift = 7
+l_d = 6.87604E4 #default is luminosity distance for z=7
+for root, dirs, files in os.walk('Lanl.ccsn.spectra/{}'.format(sn_type)):
     for name in files:
         filenames.append(os.path.join(root, name))
-fnames = [i for i in filenames if re.match('Lanl.ccsn.spectra/z25B/................/spectra.out.6.1',i) is not None]
+fnames = [i for i in filenames if re.match('Lanl.ccsn.spectra/{}/................/spectra.out.6.1'.format(sn_type),i) is not None]
+fnames = [i for i in fnames if os.stat(i).st_size !=0]
 filter = "test/WFC3_IR_F160W.dat" 
 filterdat = np.loadtxt(filter)
 filwv = filterdat[:,0]
 filamp = filterdat[:,1]
 flen = len(filterdat)
 #Assume a cosmology to calculate a distance. Using Ned's calculator for now
-z = 7
+z = redshift
 H_0 = 69.6 
 omega_M = 0.308
 omega_L = 0.692
-lum_dist = 6.87604E4 #this is in Mpc
+lum_dist = l_d #this is in Mpc
 lpc_dist = lum_dist*10E6 #just changed to pc
 pc_cm = 3.08567758E18 
 m_list = []
@@ -75,9 +79,11 @@ for x in fnames:
     m_list.append(AB)
 
 #fixes errors in the spectrum_dumps.list without making a new s_d.list file
-dirs = os.listdir('LANL.CCSN.SPECTRA/z25B/')
+dirs = os.listdir('LANL.CCSN.SPECTRA/{}/'.format(sn_type))
 dirs = [i for i in dirs if re.match('....-.-dmp......',i) is not None]
-timedat = np.genfromtxt("LANL.CCSN.SPECTRA/z15B/spectrum_dumps.list", dtype=None, skip_header=1)
+dirs = [i for i in dirs if os.stat('LANL.CCSN.SPECTRA/{}/{}/spectra.out.6.1'.format(sn_type,i)).st_size != 0] #corrects for the blank files in z40b and z40g
+
+timedat = np.genfromtxt("LANL.CCSN.SPECTRA/{}/spectrum_dumps.list".format(sn_type), dtype=None, skip_header=1)
 i = 0
 n = 0
 while (i < len(timedat) -n):
@@ -95,8 +101,8 @@ names = timedat['f0']
             
 m_dat = np.asarray(m_list)
 dz_dat = np.asarray(dz_times)
-pyfits.writeto("z25B_7.fits", m_dat)
-pyfits.append("z25B_7.fits", dz_dat)
+pyfits.writeto("{}_7.fits".format(sn_type), m_dat)
+pyfits.append("{}_7.fits".format(sn_type), dz_dat)
 
 #plot light curve
 plt.plot(dz_times, m_list)
@@ -105,5 +111,5 @@ plt.xlim(0,1000)
 #plt.ylim(42, 38)
 plt.xlabel("time (days)")
 plt.ylabel("AB Magnitudes (1.63 um)")
-#plt.savefig("Z25B")
+plt.savefig("{}_{}.png".format(sn_type, redshift))
 plt.show()
