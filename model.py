@@ -101,8 +101,8 @@ names = timedat['f0']
             
 m_dat = np.asarray(m_list)
 dz_dat = np.asarray(dz_times)
-pyfits.writeto("{}_7.fits".format(sn_type), m_dat)
-pyfits.append("{}_7.fits".format(sn_type), dz_dat)
+pyfits.writeto("{}_{}.fits".format(sn_type, redshift), m_dat)
+pyfits.append("{}_{}.fits".format(sn_type, redshift), dz_dat)
 
 #plot light curve
 plt.plot(dz_times, m_list)
