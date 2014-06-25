@@ -25,6 +25,7 @@ filter = "test/WFC3_IR_F160W.dat"
 filterdat = np.loadtxt(filter)
 filwv = filterdat[:,0]
 filamp = filterdat[:,1]
+filt = scipy.interpolate.UnivariateSpline(filwv, filamp) 
 flen = len(filterdat)
 #Assume a cosmology to calculate a distance. Using Ned's calculator for now
 z = redshift
@@ -60,9 +61,11 @@ for x in fnames:
     #k-correction extend filter to check
     lum = 0
     for x in tz_dat:
-        val = min(range(len(filwv)), key = lambda i:abs(filwv[i] - x[0]))
+        #val = min(range(len(filwv)), key = lambda i:abs(filwv[i] - x[0]))
         #print val
-        seg = x[4]*filamp[val]
+        #seg = x[4]*filamp[val]
+        wt = filt(x[0])
+        seg = x[4]*wt
         lum += seg
     print lum
 
@@ -105,6 +108,7 @@ pyfits.writeto("{}_{}.fits".format(sn_type, redshift), m_dat)
 pyfits.append("{}_{}.fits".format(sn_type, redshift), dz_dat)
 
 #plot light curve
+plt.clf()
 plt.plot(dz_times, m_list)
 plt.gca().invert_yaxis()
 plt.xlim(0,1000)
