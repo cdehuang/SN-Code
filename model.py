@@ -27,6 +27,7 @@ filwv = filterdat[:,0]
 filamp = filterdat[:,1]
 filt = scipy.interpolate.UnivariateSpline(filwv, filamp) 
 flen = len(filterdat)
+bandwidth = 2683 #looked this up
 #Assume a cosmology to calculate a distance. Using Ned's calculator for now
 z = redshift
 H_0 = 69.6 
@@ -72,7 +73,7 @@ for x in fnames:
 #this number was in erg s^-1, so now we want to get it into erg sec^-1 cm^-2 A^-1
     Flux = lum/(4*np.pi*np.power(pc_cm*lpc_dist,2))
     print "Flux", Flux
-    F_l = Flux/16300 #wavelength of the bandpass
+    F_l = Flux/bandwidth 
     print "F_l", F_l
     F_v = F_l*(np.power(1.63,2))/(beta)
     print "F_v", F_v
