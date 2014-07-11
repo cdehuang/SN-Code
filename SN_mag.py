@@ -11,7 +11,7 @@ from StringIO import StringIO
 import pyfits
 
 def SNmag(sn_type, redshift, time, fil='WFC3_IR_F160W'):
-    #indent everything to go under this function
+    #sn_type input is something like 'z15b', redshift is any number, time is in days, last one is filter
     filenames = []
     for root, dirs, files in os.walk('Lanl.ccsn.spectra/{}'.format(sn_type)):
         for name in files:
@@ -26,11 +26,10 @@ def SNmag(sn_type, redshift, time, fil='WFC3_IR_F160W'):
     filt = scipy.interpolate.UnivariateSpline(filwv, filamp)
     flen = len(filterdat)
     bandwidth = 2683
-    #Assume a cosmology to calculate a distance. Using Ned's calculator for now
     z = redshift
 
     #l_d=6.87604E4 for z = 7
-    #calculate luminosity distance from the redshift using the values listed in the paper
+    #calculate luminosity distance from the redshift using the values listed in the paper, assuming a flat universe. Maybe will fine-tune H_0 to what they have
     H_0 = 69.6 #not listed in the paper, but perhaps they used a different one?
     omega_M = 0.308
     omega_L = 0.692
@@ -74,7 +73,6 @@ def SNmag(sn_type, redshift, time, fil='WFC3_IR_F160W'):
 
     ind = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[0]))
     ind_2 = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[flen-1]))
-    #print ind, ind_2
     tz_dat = z_dat[ind_2:ind]
     tz_width = tz_dat[:,2]
 
