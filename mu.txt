@@ -1,0 +1,8 @@
+For SN type z15b the magnification needed is 113.089396773
+For SN type z15d the magnification needed is 52.6530981789
+For SN type z15g the magnification needed is 21.5192560188
+For SN type z25b the magnification needed is 348.707442463
+For SN type z25d the magnification needed is 205.571712933
+For SN type z25g the magnification needed is 113.103390825
+For SN type z40b the magnification needed is 28.445134671
+For SN type z40g the magnification needed is 26.7046634766
