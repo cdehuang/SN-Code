@@ -32,13 +32,6 @@ def sim(num=100, ma=1, type='z15b', exf=1, SFR=1, mag_limit=30, A_v=1):
     SNs[:,1] = np.random.uniform(dec_min, dec_max, length) #DEC
 
     #any supernovae with RA and DECs that fall within these values, but not in the ACS region get assigned a magnitude of 500. First part is matching the assigned supernovae ra and dec with the correct pixels. 
-    ra_range = ra_max - ra_min
-    dec_range = dec_max - dec_min
-    ra_step = ra_range/(max_rpix + 1)
-    dec_step = dec_range/(max_dpix + 1)
-    nstepsra = (ra - ra_min)/ra_step
-    nstepsdec = (dec - dec_min)/dec_step
-
     pixcoordsdec = np.array([range(max_rpix), np.zeros(max_rpix)])
     pixcoordsdec = np.array([np.zeros(max_dpix), range(max_dpix)])
     ra_pix = pixcoordsr.transpose()
@@ -51,11 +44,11 @@ def sim(num=100, ma=1, type='z15b', exf=1, SFR=1, mag_limit=30, A_v=1):
         #SNs.append([0, 0, i, 0, 0])
         SNs[(i-1)*num:i*num,2] = i+4
     for q in range(length):
-        idxr = (np.abs(ra_sky - SNs[q,0])).argmin()
-        idxd = (np.abs(dec_sky - SNs[q,1])).argmin()
+        idxr = (np.abs(ra_sky[:,0] - SNs[q,0])).argmin()
+        idxd = (np.abs(dec_sky[:,1] - SNs[q,1])).argmin()
         if ra_decdata[idxr, idxd] == 0:
             SNs[q,4] = 500
         else:
-            SNs[i,4] = SNmag(type, SNs[i,2], SNs[i,3])
+            SNs[q,4] = SNmag(type, SNs[q,2], SNs[q,3])
 
      return SNs
