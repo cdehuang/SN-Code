@@ -26,6 +26,7 @@ def SNmag(sn_type, redshift, time, fil='WFC3_IR_F160W'):
     filt = scipy.interpolate.UnivariateSpline(filwv, filamp)
     flen = len(filterdat)
     bandwidth = 2683
+    beta = 3E-13
     z = redshift
 
     #l_d=6.87604E4 for z = 7
@@ -63,28 +64,33 @@ def SNmag(sn_type, redshift, time, fil='WFC3_IR_F160W'):
     dz_times = (times*(1+z))/86400 #converting from seconds to days and multiplying by redshift
     names = timedat['f0']
     ind = min(range(len(times)), key=lambda q:abs(dz_times[q]-time))
-    filename = names[ind]
+    if ind == 0:
+        AB = 500
+    else:
+        filename = names[ind]
 
-    dat = np.loadtxt('Lanl.ccsn.spectra/{}/{}/spectra.out.6.1'.format(sn_type, filename))
-    wavelength = dat[:,0]
-    z_dat = dat
-    z_dat[:,0] *= (1+z)
-    z_wvl = z_dat[:,0]
+        dat = np.loadtxt('Lanl.ccsn.spectra/{}/{}/spectra.out.6.1'.format(sn_type, filename))
+        wavelength = dat[:,0]
+        z_dat = dat
+        z_dat[:,0] *= (1+z)
+        z_wvl = z_dat[:,0]
 
-    ind = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[0]))
-    ind_2 = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[flen-1]))
-    tz_dat = z_dat[ind_2:ind]
-    tz_width = tz_dat[:,2]
+        ind = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[0]))
+        ind_2 = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[flen-1]))
+        #print ind, ind_2
+        tz_dat = z_dat[ind_2:ind]
+        tz_width = tz_dat[:,2]
 
-    lum = 0
-    for x in tz_dat:
-        wt = filt(x[0])
-        lum += x[4]*wt
-    Flux = lum/(4*np.pi*np.power(lum_dist,2))
-    F_l = Flux/bandwidth #wavelength of the bandpass
-    F_v = F_l*(np.power(1.63,2))/(beta)
-    #print "F_v", F_v
-    #this last number is in janskys
-    AB = 2.5*(23 - np.log10(F_v)) - 48.60
-    #print "AB", AB
+        lum = 0
+        for x in tz_dat:
+            wt = filt(x[0])
+            lum += x[4]*wt
+        Flux = lum/(4*np.pi*np.power(lum_dist,2))
+        F_l = Flux/bandwidth #wavelength of the bandpass
+        F_v = F_l*(np.power(1.63,2))/(beta)
+        #print "F_v", F_v
+        #this last number is in janskys
+        AB = 2.5*(23 - np.log10(F_v)) - 48.60
+        #print "AB", AB
     return AB
+
