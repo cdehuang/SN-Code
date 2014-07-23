@@ -62,11 +62,18 @@ Y = Y[0:5]
 
 plt.clf()
 #plt.contour(xnew, ynew, znew)
-plt.contour(X, Y, Z)
+plt.clabel(CS, inline=1, fontsize=10)
+CS = plt.contour(X, Y, Z)
 plt.xlabel("redshift")
 plt.ylabel("$\mu$")
 plt.title('N(z, $\mu$), for flat $\eta(z)$ and SFR')
 plt.savefig("number_SN_lin.png")
+
+plt.clf()
+plt.plot(z_list, SFR)
+plt.xlabel("redshift")
+plt.ylabel("$\mu$")
+plt.savefig("SFR_flat.png")
 plt.show()
 
 
