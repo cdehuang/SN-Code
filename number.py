@@ -72,7 +72,7 @@ plt.savefig("number_SN_lin.png")
 plt.clf()
 plt.plot(z_list, SFR)
 plt.xlabel("redshift")
-plt.ylabel("$\mu$")
+plt.ylabel("SFR")
 plt.savefig("SFR_flat.png")
 plt.show()
 
