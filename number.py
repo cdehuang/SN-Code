@@ -15,6 +15,7 @@ z_list = np.linspace(1, 10, 9)
 m = len(z_list)
 #SFR = np.zeros(m) + 1
 SFR = np.zeros(m) + 2*z_list
+SFR = SFR/(max(SFR))
 
 #efficiency, also depends on z, but let's assume that it's flat for now
 eta = np.zeros(m) + 2
