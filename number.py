@@ -24,9 +24,9 @@ eta = np.zeros(m) + 2
 #voldat = np.genfromtxt("volumedata_a1689.dat", dtype=None, skip_header=n)
 
 #by with seg we mean using a segmentation map, so smaller volume an vice-versa
-mus = voldat[:,0]
-withseg = voldat[:,2]
-noseg = voldat[:,1]
+#mus = voldat[:,0]
+#withseg = voldat[:,2]
+#noseg = voldat[:,1]
 
 #need to do some 2D interpolation
 
