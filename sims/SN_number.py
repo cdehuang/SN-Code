@@ -24,7 +24,7 @@ def number_SN(z, mu_min=1, mu_max=100):
     SFR = np.zeros(m)
     SFR[0:idx] = 0.5
     SFR[idx:m] = -2*z_list[idx:m]+ 60
-    SFR[idx:m] = SFR[idx:m]/max(np.abs(SFR))
+    #SFR[idx:m] = SFR[idx:m]/max(np.abs(SFR))
 
     #efficiency, also depends on z, but let's assume that it's flat for now
     idx = find_nearest(z_list, 5)
