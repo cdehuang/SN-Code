@@ -12,15 +12,10 @@ import volfun
 import SN_number #update the SN_number script that's uploaded onto github
 #import SN_mag
 
-num=100
 zmin=5
 zmax=6
-ma=1
 type='z15g'
-exf=1
-SFR=1
 mag_lim=27
-A_v=1
 cluster= 'abell383'
 
 def mumag(mag, mu):
