@@ -14,8 +14,12 @@ def find_nearest(array,value):
     return idx
 
 #returns the number of SN expected at the given z for each mu. First column is the mu.
-def number_SN(z, mu_min=1, mu_max=100):
+def number_SN(z, mu_min=1):
     #star formation rate, depends on z
+    if mu_min < 50:
+        mu_max = 60
+    else:
+        mu_max = mu_min + 10
     z_list = np.linspace(1, 30, 30)
     m = len(z_list)
     #SFR = np.zeros(m) + 1
