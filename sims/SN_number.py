@@ -36,7 +36,7 @@ def number_SN(z, mu_min=1):
     eta[idx:m] = z_list[idx:m]*0.75
     eta = eta/max(eta)
     
-    volarray = volwmag(z_list[0], mumin=mu_min, mumax=mu_max)
+    volarray = volfun.volwmag(z_list[0], mumin=mu_min, mumax=mu_max)
     volarray[:,2] = volarray[:,2]*SFR[z]*eta[z]
     volarray = np.delete(volarray, 1, 1)
     #number_arr = np.c_[ number_arr, [vol*SFR[z]*eta[z]]]
