@@ -7,10 +7,11 @@ from scipy import integrate
 import matplotlib.pylab as plt
 import numpy.random
 import pywcs
-import mag_lim
+import maglim
 import volfun
-import SN_number #update the SN_number script that's uploaded onto github
-#import SN_mag
+import SN_number
+import pyfits
+import SN_mag
 
 zmin=5
 zmax=6
@@ -41,8 +42,8 @@ spacing = zmax - zmin + 1
 ztargets = np.linspace(zmin, zmax, spacing)
 mag_array = np.zeros((1,2))
 for x in ztargets:
-    l_c = lightcurve(type, x)
-    mu = mag_factor(l_c, mag_limit)
+    l_c = maglim.lightcurve(type, x)
+    mu = maglim.magfactor(l_c, mag_lim)
     mag_array = np.r_[mag_array, [[x, mu]]]
 mag_array = mag_array[1:len(ztargets)+1, :]
 #print mag_array.shape
@@ -57,7 +58,7 @@ number_arr = np.zeros(0)
 for x in range(len(ztargets)):
     #print ztargets[x]
     #print mag_array[x, 1]
-    number_arr = number_SN(ztargets[x], mu_min = mag_array[x, 1])
+    number_arr = SN_number.number_SN(ztargets[x], mu_min = mag_array[x, 1])
     #this calculates the number at each magnitude, but note that it won't be integer numbers at this point
     number = np.c_[number_arr[0:len(number_arr)-1,0], np.abs(np.diff(number_arr[:,1]))]
     #now we turn the numbers into integer numbers to put into the rest of the code
@@ -117,9 +118,9 @@ while n < len(SN_array):
 num_detection = 0
 for n in range(len(SN_array)):
     day = SN_array[n,5]
-    mag_1 = SNmag(type, SN_array[n,3], day)
+    mag_1 = SN_mag.SNmag(type, SN_array[n,3], day)
     mag_1 = mumag(mag_1, SN_array[n,4])
-    mag_2 = SNmag(type, SN_array[n,3], day + 14)
+    mag_2 = SN_mag.SNmag(type, SN_array[n,3], day + 14)
     mag_2 = mumag(mag_2, SN_array[n,4])
     SN_array[n, 6] = mag_1
     SN_array[n, 7] = mag_2
