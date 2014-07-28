@@ -10,7 +10,7 @@ from StringIO import StringIO
 import pyfits
 import scipy
 
-def mag_factor(lc, lim):
+def magfactor(lc, lim):
     peak = min(lc)
     if lim < min:
         jsky = np.power(10, 23 -(peak + 48.60)/2.5)
