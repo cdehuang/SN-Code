@@ -93,7 +93,7 @@ def number_SN(z, mass, mu_min=1, eta=0.01):
     all = quad(Kroupa2, 0.1, 100)
     allsn = all[0]*efficiency
     cc = quad(Kroupa2, mass-5, mass+5)
-    fraction = ccsn[0]/all[0] #the fraction of all the stellar mass created that goes into the stars we're care about.
+    fraction = cc[0]/all[0] #the fraction of all the stellar mass created that goes into the stars we're care about.
     ccsn = fraction*efficiency
 
     #the actual amount of stellar mass per Mpc^3
