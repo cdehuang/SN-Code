@@ -3,4 +3,4 @@ Trying to figure out why the magnitudes of my light curves differ. Here is some 
 Changes from the light curve calculations elsewhere on github:
 1. convert from f_l to f_v before summing the flux
 2. tailored for the 1a models
-
+3. using a better interpolation routine (instead of univariate spline it's doing linear interpolation with interp1d)
