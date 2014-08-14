@@ -1,2 +1,6 @@
 alias clusterdir deflxfile deflyfile zcluster zmodel 
-Abell383  abell383   alpha_x_MC_a383.fits           alpha_y_MC_a383.fits           SEG_MC_a383.fits           0.187  2.55
+Abell383    abell383    alpha_x_MC_a383.fits    alpha_y_MC_a383.fits    SEG_MC_a383.fits    0.187   2.55
+Abell2261   abell2261   alpha_x_A2261_4p4_20131108_PIEMDeNFW.fits   alpha_y_A2261_4p4_20131108_PIEMDeNFW.fits   SEG_a2261_MCSpline.fits 0.224   4.4
+Macs0329    macs0329    alpha_x_MACS0329_6p18_20131106_PIEMDeNFW.fits   alpha_y_MACS0329_6p18_20131106_PIEMDeNFW.fits   SEG_0329.fits   0.450   6.2
+Macs0647    macs0647    alpha_x_M0647_6p53_20140214_PIEMDeNFW.fits  alpha_y_M0647_6p53_20140214_PIEMDeNFW.fits  SEG_MC_0647_v2.fits 0.584   2.4
+Macs0744    macs0744    alpha_x_M0744_4p31_20140221_PIEMDeNFW.fits  alpha_y_M0744_4p31_20140221_PIEMDeNFW.fits  SEG_M0744sys1_zsim4V1.fits  0.686   4.0
