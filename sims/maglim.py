@@ -101,26 +101,25 @@ def lightcurve(sn_type, redshift, steps=5, fil='WFC3_IR_F160W'):
         z_wvl = z_dat[:,0]
 
         #trim to the appropriate size
-        ind = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[0]))
+        ind = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[1]))
         ind_2 = min(range(len(z_wvl)), key=lambda q:abs(z_wvl[q]-filwv[flen-1]))
         #print ind, ind_2
         tz_dat = z_dat[ind_2:ind]
         tz_width = tz_dat[:,2]
 
         #integrate by summing
-        lum = 0
+        flux = 0
         for x in tz_dat:
             wt = filt(x[0])
-            # val = min(range(len(filwv)), key = lambda i:abs(filwv[i] - x[0]))
-            #print val
-            #lum += x[4]*filamp[val]
-            lum += x[4]*wt
-#       print lum
-        Flux = lum/(4*np.pi*np.power(lum_dist,2))
-        #print "Flux", Flux
-        F_l = Flux/bandwidth #wavelength of the bandpass
-        F_v = F_l*(np.power(1.63,2))/(beta)
-        AB = 2.5*(23 - np.log10(F_v)) - 48.60
+            seg_lum = x[5]*wt*(1./(1+z))
+            seg_flux = seg_lum/(4*np.pi*np.power(lum_dist, 2))
+            lam = x[0]/1E4
+            f_v = seg_flux*(np.power(lam,2))/(beta)
+            flux += f_v
+
+        flux_list.append(flux)
+        AB = 2.5*(23-np.log10(flux))-48.60
+        #AB = 2.5*(23 - np.log10(F_v)) - 48.60 zeropoint #25.96
         m_list.append(AB)
 
     m_list = np.asarray(m_list)
