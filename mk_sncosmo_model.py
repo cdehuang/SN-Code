@@ -24,7 +24,7 @@ A_10pc = 4 * np.pi * (3.08567758e19)**2   # cm^2
 
 
 def mksedfile( modelname, rename=True, fixtypos=True, combine=True,
-               minphasestep=0.1,  Nwaveskip=10 ):
+               minphasestep=0.5,  Nwaveskip=10 ):
     start = time.time()
     if rename :
         print("Renaming spectra.out files to more useful file names.")
@@ -77,7 +77,8 @@ def renamedir( modelname, minphasestep=0.5 ):
         # remove the old subdirectory and all contents
         for oldfile in oldnamelist :
             if os.path.exists( oldfile) : os.remove( oldfile )
-        os.removedirs( subdirname )
+        if os.path.isdir( subdirname ) :
+            os.removedirs( subdirname )
     end = time.time()
     print( "    Renamed %i files in %i seconds. (%.3e sec per file)"%(len(filelist), (end-start), (end-start)/len(filelist)))
     return(filelist, phaselist)
