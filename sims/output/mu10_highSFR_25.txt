@@ -1,4 +1,6 @@
 The 15 solar mass SNs (z15g), 22 detections:
+columns are:
+SN type, RA, DEC, redshift, magnification, # of days after explosion, mag_1, mag_2, cluster
 [[   2.        ,    0.        ,  -24.04145793,    5.        ,
           18.        ,  211.75565721,    0.        ,    0.        ,    7.        ],
        [   2.        ,  109.4243994 ,   37.76472284,    5.        ,
