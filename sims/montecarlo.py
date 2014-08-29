@@ -26,10 +26,6 @@ import SN_mag #update the SN_number script that's uploaded onto github
 #   Also add in timestamps like Steve's code and headers that are actually well documented
 #   What is a good way to code in the SFR besides just using a function that is in the SN_number.py program?
 #   Also it's probably a good idea to write in the option to read in light curves, or make it like Leonidas does and read in a file containing the names of files that we want.
-#   Find a way to print out some kind of useful information about the simulation so that we know approximately how far along we've gotten
-#   Scale the lightcurves up correctly (instead of just adding a magnitude or two)
-#   Check that the cosmology really is consistent between all the parts...I fear it is not consistent with the output volumes.
-
 
 #   OUTPUT
 #
