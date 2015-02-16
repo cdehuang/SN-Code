@@ -36,7 +36,7 @@ def remove_shock_breakout(mags):
     #   find where the lightcurve starts to rise for a while
     for i in splitarray:
         lengt = len(i)
-        if lengt > 3:
+        if lengt > 2:
             firstarr = i
             firstidx = i[0]
             break
@@ -135,3 +135,26 @@ def whalen_lightcurve(sn_type, redshift, steps=2, fil='../../filters/WFC3_IR_F16
     #return m_list
     tm_list, ind = remove_shock_breakout(m_list)
     return tm_list
+
+if __name__ =="__main__":
+    mag_diff = np.diff(mags)
+    
+    #   this is where the SN is getting brighter. Split into arrays where the light curve is continuously brightening.
+    brighter = np.where(mag_diff < 0)[0]
+    splitarray = np.array_split(brighter, np.where(np.diff(brighter)!=1)[0]+1)
+    
+    #   find where the lightcurve starts to rise for a while
+    for i in splitarray:
+        lengt = len(i)
+        if lengt > 2:
+            firstarr = i
+            firstidx = i[0]
+            break
+    
+    #   We could just remove everything that comes before the beginning index, but I think I'll just remove everything that comes before the dip instead. This may not be the best way to do it though...
+    fidx = np.where(mags == np.max(mags[0:firstidx]))[0]
+    if fidx == 0:
+        fidx = firstidx
+    
+    #   Return the trimmed array
+    return mags[fidx:len(mags)-1], fidx
