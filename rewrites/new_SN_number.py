@@ -12,6 +12,7 @@ import math
 import new_volfun
 import cosmolopy.distance as cd
 import astropy.io.ascii as ascii
+import scipy
 
 def recarr_to_nparr(record_array):
     record_array = np.asarray(record_array)
@@ -131,80 +132,204 @@ def comovingradial(z, H_0=73, omega_M=0.308, omega_L=0.692, omega_K=0):
 #   maxvisibility is the longest ay of the SN could be seen at any redshift and magnification
 #   need to remove the repetitive columns
 
-def number_SN(z, mass, sfr='high', mu_min=1, eta=1, IMF='Kroupa', maxvisibility=700, cluster_file='../../all_hst_surveys.csv', parameter_file='../../"Debugging Things"/vp_lensmodels.lis', volume_file_dir='../../output/', volume_files_name='volumemag_whalen'):
-
-#note that numccsn is not quite accurate because this is num in the redshifted year. We could multiply this here. CLASH has been observing for 2.7 years.
-
-#Eventually you need to change this so that it is returning the volume per cluster and then planting the SNs in the correct clusters. I thought I had already done this? So where is the code?
+def number_SN(z, mass, configfile, mu_min=1):
     """
-    z=5.
-    mass = 15.
-    mu_min=1.
-    sfr = 1
-    eta = 1
-    maxvisibility = 700.
-    cluster_file='../../all_HST_surveys.csv'
-    parameter_file = '../"Debugging Things"/vp_lensmodels.lis'
-
+        Calculates the number of SN expected per cluster per redshift per magnification.
     """
+    #   Load in all the parameters
+    c = {}
+    execfile(configfile, c)
+    
+    if mu_min < 50:
+        mu_max = 60
+    else:
+        mu_max = mu_min + 10
+    
+    efficiency = c['efficiency']
+    
+    #   cluster_file is the file that contains all the clusters, their reddest filters, and effective cadences
+    cluster_array = ascii.read(c['observations'])
+    
+    clusters = cluster_array['cluster']
+    cadences = cluster_array['effective_cadence']
+    filter = cluster_array['reddest_filter']
+    maxvisibility = c['maximum_visibility']
+    search_number = cluster_array['search_number']
+    sfr = c['star_formation_rate']
+    
+    IMF = eval(c['IMF'])
+    IMF2 = eval(c['IMF2'])
+    try:
+        print "IMF found."
+        all = quad(IMF2, 0.1, 100)
+        allsn = all[0]*efficiency
+        if mass <= 5:
+            cc = quad(Kroupa, mass-0.5, mass+0.5)
+        elif (5 < mass) & (mass <= 10):
+            cc = quad(Kroupa, mass-1, mass+1)
+        elif (10 < mass) & (mass <= 40):
+            cc = quad(Kroupa, mass-5, mass+5)
+        elif (mass > 40):
+            cc = quad(Kroupa, mass-10, mass+10)
+    except AttributeError:
+        print("{} IMF unknown. Using Kroupa IMF instead...".format(IMF))
+        all = quad(Kroupa2, 0.1, 100) #using Kroupa 2 to calculate the total stellar mass
+        allsn = all[0]*efficiency
+        if mass <= 5:
+            cc = quad(Kroupa, mass-0.5, mass+0.5)
+        elif (5 < mass) & (mass <= 10):
+            cc = quad(Kroupa, mass-1, mass+1)
+        elif (10 < mass) & (mass <= 40):
+            cc = quad(Kroupa, mass-5, mass+5)
+        elif (mass > 40):
+            cc = quad(Kroupa, mass-10, mass+10)
+    
+    fraction = cc[0]/all[0] #the fraction of all the stellar mass created that goes into the stars we're care about.
+    ccsn = fraction*efficiency
+    
+    #the actual amount of stellar mass per Mpc^3, also the interpolation part assumes that we get a bunch of points that are arranged in a 2-column array where the first column is redshift and the second one is the star formation rate I guess
+    if sfr == 'high':
+        I = quad(highSFR, z, z+1)
+    elif sfr == 'low':
+        I = quad(lowSFR, z, z+1)
+    else:
+        s = scipy.interpolate.interp1d(sfr[:,0], sfr[:,1])
+        I = quad(s, z, z+1)
+    
+    numccsn = ccsn*I[0] #number of cc sn per Mpc^3 using their numbers it comes out to like 0.00024 SN per Mpc^3
+    
+    #for testing purposes, take out the dependence on Leonidas' code and see if we are still creating SNs. Just integrate the area
+    if os.path.isfile('../../output/volumemag_whalen_{}.dat'.format(z)):
+        #if os.stat('../output/volumemag_whalen_{}.dat'.format(z)).st_size != 0:
+        magvolumes = '../../output/volumemag_whalen_{}.dat'.format(z)
+        print "using the Whalen et al cosmology"
+        vlist = ascii.read(magvolumes)
+        vlist = np.asarray(vlist)
+        volarray = vlist.view(np.float).reshape(vlist.shape + (-1,))
+        volarray = volarray[mu_min-1: mu_max]
+    elif os.path.isfile(volume_file_dir + volume_files_name + '_{}'.format(z)):
+        magvolumes = volume_file_dir + volume_files_name + '_{}'.format(z)
+        print "using the standard LCDM cosmology"
+        vlist = ascii.read(magvolumes)
+        vlist = np.asarray(vlist)
+        volarray = vlist.view(np.float).reshape(vlist.shape + (-1,))
+        volarray = volarray[mu_min-1: mu_max]
+    elif os.path.isfile(volume_file_dir + volume_files_name + '_{}'.format(z)):
+        magvolumes = '../../output/volumemag_{}.dat'.format(z)
+        print "using user-input volumes and cosmology"
+        vlist = ascii.read(magvolumes)
+        vlist = np.asarray(vlist)
+        volarray = vlist.view(np.float).reshape(vlist.shape + (-1,))
+        volarray = volarray[mu_min-1: mu_max]
+    else:
+        print "Volume files not found. Calculating volumes..."
+        volarray = new_volfun.volwmag(z, mumin=mu_min, mumax=mu_max, parameter_file=parameter_file)
+    
+    #   Runs through all of the clusters, gets their data, should return an array in which each column is the volumes of the clusters in order. first column is the magnifications
+    
+    all_cluster_vols = vlist['magnification']
+    
+    missing_clusters = []
+    arr_columns = ['magnification']
+    
+    #   note that the macs clusters had Js in the name, but that had gotten dropped in earlier iterations of code, so now in order to match them properly i'm putting it back in.
+    i = 0
+    for cs in clusters:
+        clust = cs.lower()
+        if clust[0:5] == 'macsj':
+            clust = ''.join([clust[0:4], clust[-4:]])
+        try:
+            clust_vols = vlist[clust]
+            arr_columns.append(clust+'_s{}'.format(search_number[i]))
+        except ValueError:
+            missing_clusters.append(clust)
+            continue
+        all_cluster_vols = np.c_[all_cluster_vols, clust_vols]
+        i += 1
+    
+    if len(missing_clusters) > 0:
+        missing_clusters = set(missing_clusters)
+        missing_cluster_indices = np.zeros(0)
+        for i in missing_clusters:
+            clusters = np.asarray([cs.lower() for cs in clusters])
+            indices = np.where(clusters == i)
+            missing_cluster_indices = np.r_[missing_cluster_indices, indices[0]]
+    #   trim to the appropriate size
+    all_cluster_vols = all_cluster_vols[mu_min-1:mu_max]
+    arrshape = all_cluster_vols.shape
+    
+    #   note that this could be an array, depending on the input file
+    duration = cadences + maxvisibility
+    
+    duration = duration/365.
+    #print "duration", duration, duration.shape
+    
+    #time = (duration)/(1.+z) #using the survey duration in years in our frame
+    time = (duration)/(1. + z)
+    #print "time", time
+    time = np.delete(time, missing_cluster_indices)
+    
+    #   multiple cluster version
+    numarray = all_cluster_vols*1.
+    clusts = len(all_cluster_vols[0]) -1
+    for i in range(clusts):
+        #numarray[:,i] = numarray[:,i]*numccsn
+        numarray[:,i+1] = numarray[:,i+1]*numccsn*time[i] #for one of the cases
+    #number_arr = np.c_[ number_arr, [vol*SFR[z]*eta[z]]]
+
+    print "missing clusters:", missing_clusters
+    #print "shape of the nparray", numarray.shape
+    num_arr = np.core.records.fromarrays(numarray.transpose(), names=arr_columns)
+
+    return num_arr
+
+#   debugging
+if __name__ =="__main__":
+    z = 5.
+    mass = 40.
+    mu_min=50
+    c = {}
+    execfile(configfile, c)
+
     if mu_min < 50:
         mu_max = 60
     else:
         mu_max = mu_min + 10
 
-    #efficiency = eta
-    efficiency = 1
+    efficiency = c['efficiency']
 
     #   cluster_file is the file that contains all the clusters, their reddest filters, and effective cadences
-
-    cluster_array = np.recfromcsv(cluster_file)
+    cluster_array = ascii.read(c['observations'])
 
     clusters = cluster_array['cluster']
-    cadence = cluster_array['effective_cadence']
+    cadences = cluster_array['effective_cadence']
     filter = cluster_array['reddest_filter']
+    maxvisibility = c['maximum_visibility']
+    search_number = cluster_array['search_number']
+    sfr = c['star_formation_rate']
 
-    if IMF == 'Kroupa':
-        all = quad(Kroupa2, 0.1, 100) #using Kroupa 2 to calculate the total stellar mass
+    IMF = eval(c['IMF'])
+    IMF2 = eval(c['IMF2'])
+    try:
+        all = quad(IMF2, 0.1, 100)
         allsn = all[0]*efficiency
-        if mass < 5:
+        if mass <= 5:
             cc = quad(Kroupa, mass-0.5, mass+0.5)
-        elif (5 < mass) & (mass < 10):
+        elif (5 < mass) & (mass <= 10):
             cc = quad(Kroupa, mass-1, mass+1)
-        elif (10 < mass) & (mass < 40):
+        elif (10 < mass) & (mass <= 40):
             cc = quad(Kroupa, mass-5, mass+5)
         elif (mass > 40):
             cc = quad(Kroupa, mass-10, mass+10)
-    elif IMF == 'KroupaSalpeter':
-        all = quad(KroupaSalpeter2, 0.1, 100)
-        allsn = all[0]*efficiency
-        if mass < 5:
-            cc = quad(KroupaSalpeter, mass-0.5, mass+0.5)
-        elif (5 < mass) & (mass < 10):
-            cc = quad(KroupaSalpeter, mass-1, mass+1)
-        elif (10 < mass) & (mass < 40):
-            cc = quad(KroupaSalpeter, mass-5, mass+5)
-        elif (mass > 40):
-            cc = quad(KroupaSalpeter, mass-10, mass+10)
-    elif IMF == 'Salpeter':
-        all = quad(Salpeter2, 0.1, 100)
-        allsn = all[0]*efficiency
-        if mass < 5:
-            cc = quad(Salpeter, mass-0.5, mass+0.5)
-        elif (5 < mass) & (mass < 10):
-            cc = quad(Salpeter, mass-1, mass+1)
-        elif (10 < mass) & (mass < 40):
-            cc = quad(Salpeter, mass-5, mass+5)
-        elif (mass > 40):
-            cc = quad(Salpeter, mass-10, mass+10)
-    else:
-        print "{} IMF unknown. Using Kroupa IMF instead...".format(IMF)
+    except AttributeError:
+        print("{} IMF unknown. Using Kroupa IMF instead...".format(IMF))
         all = quad(Kroupa2, 0.1, 100) #using Kroupa 2 to calculate the total stellar mass
         allsn = all[0]*efficiency
-        if mass < 5:
+        if mass <= 5:
             cc = quad(Kroupa, mass-0.5, mass+0.5)
-        elif (5 < mass) & (mass < 10):
+        elif (5 < mass) & (mass <= 10):
             cc = quad(Kroupa, mass-1, mass+1)
-        elif (10 < mass) & (mass < 40):
+        elif (10 < mass) & (mass <= 40):
             cc = quad(Kroupa, mass-5, mass+5)
         elif (mass > 40):
             cc = quad(Kroupa, mass-10, mass+10)
@@ -263,26 +388,25 @@ def number_SN(z, mass, sfr='high', mu_min=1, eta=1, IMF='Kroupa', maxvisibility=
     arr_columns = ['magnification']
 
     #   note that the macs clusters had Js in the name, but that had gotten dropped in earlier iterations of code, so now in order to match them properly i'm putting it back in.
-
-    clusters = set(clusters)
-
-    for c in clusters:
-        clust = c.lower()
+    i = 0
+    for cs in clusters:
+        clust = cs.lower()
         if clust[0:5] == 'macsj':
             clust = ''.join([clust[0:4], clust[-4:]])
         try:
             clust_vols = vlist[clust]
-            arr_columns.append(clust)
+            arr_columns.append(clust+'_s{}'.format(search_number[i]))
         except ValueError:
             missing_clusters.append(clust)
             continue
         all_cluster_vols = np.c_[all_cluster_vols, clust_vols]
+        i += 1
 
     if len(missing_clusters) > 0:
         missing_clusters = set(missing_clusters)
         missing_cluster_indices = np.zeros(0)
         for i in missing_clusters:
-            clusters = np.asarray([c.lower() for c in clusters])
+            clusters = np.asarray([cs.lower() for cs in clusters])
             indices = np.where(clusters == i)
             missing_cluster_indices = np.r_[missing_cluster_indices, indices[0]]
     #   trim to the appropriate size
@@ -290,7 +414,7 @@ def number_SN(z, mass, sfr='high', mu_min=1, eta=1, IMF='Kroupa', maxvisibility=
     arrshape = all_cluster_vols.shape
 
     #   note that this could be an array, depending on the input file
-    duration = cadence + maxvisibility
+    duration = cadences + maxvisibility
 
     duration = duration/365.
     #print "duration", duration, duration.shape
@@ -309,12 +433,16 @@ def number_SN(z, mass, sfr='high', mu_min=1, eta=1, IMF='Kroupa', maxvisibility=
     #number_arr = np.c_[ number_arr, [vol*SFR[z]*eta[z]]]
 
     #   now make a record array with all of the information in there
-    print("number of columns", len(arr_columns))
-    print("shape of the nparray", numarray.shape)
+    print "number of columns", len(arr_columns)
+    print "missing clusters:", missing_clusters
+    print "shape of the nparray", numarray.shape
     num_arr = np.core.records.fromarrays(numarray.transpose(), names=arr_columns)
-    print("num_arr: shape", num_arr.shape)
+    print "num_arr: shape", num_arr.shape
 
-    # return numarray #now you are returning an array that tells you how many supernovae are in each magnification range for each cluster, and they're by column
 
-    return num_arr
+#   The code needs a volumes file. Or it needs to calculate the volumes in some way. It also needs to know the name of the clusters. To calculate the volumes, in general we just need to give the volfun code a directory with the various files.
+#   Calculates the number of SN for a given volume of space based on the input star formation rates and stuff
+#def sn_num_cluster(z, mass, configfile, mu_min=1):
+
+
 
