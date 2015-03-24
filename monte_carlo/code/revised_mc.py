@@ -165,7 +165,7 @@ def simulate(configfile, m_arr, sn_type, mass, recarrdatypes=None):
     recarrdatypes = [('sn_type', '|S10'), ('ra', float), ('dec',float), ('redshift', float), ('magnification', float), ('epoch', int), ('apparent_mag_1', float), ('apparent_mag_2', float), ('mag_difference', float) , ('cluster', '|S10'), ('cadence', int), ('id', '|S13'), ('MC_run', int)]
     
     #   get the filter name
-    filter_name = glob.glob('../../filters/WFC*{}*.dat'.format(filter))[0]
+    filter_name = glob.glob('../filters/WFC*{}*.dat'.format(filter))[0]
     
     SN_array = np.recarray((0,), dtype=recarrdatypes)
     total_detections = np.recarray((0,), dtype=recarrdatypes)
