@@ -12,7 +12,7 @@ import os.path
    output FITS files are approximately 100 MB in size...
 """
 
-#all of the CLASH clusters (25) (need directories with these names)
+#all of the CLASH clusters (25) (need directories with these names--but the directory structure is already okay under monte_carlo on github)
 
 clusters = ['abell1423', 'abell209', 'abell2261', 'abell611', 'macs0329', 'macs0416','macs0429', 'macs0647', 'macs0717', 'macs0744', 'macs1115', 'macs1149', 'macs1206', 'macs1311', 'macs1423', 'macs1720', 'macs1931', 'macs2129', 'ms2137', 'clj1226', 'rxj1347', 'rxj1532', 'rxj2129', 'rxj2248']
 
