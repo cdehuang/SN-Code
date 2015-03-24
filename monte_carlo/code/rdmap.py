@@ -9,6 +9,7 @@ import os.path
 
 """
    Makes a FITS file covering the ACS + WFC3 region of each cluster. The FITS file is 1 in the cluster region and 0 outside of the cluster region. This is just so that I make sure all of the RA and DEC points that the monte carlo generates are in the right location (the points get multiplied by the map and ones that aren't right get redistributed)
+   The region files don't have RA and DEC coordinates though, so I'm not sure what a good way to convert from those to the actual fits maps would be. 
    output FITS files are approximately 100 MB in size...
 """
 
