@@ -1,0 +1,5 @@
+# Region file format: DS9 version 4.1
+# Filename: /Volumes/Archive/CLASH/archive.stsci.edu/pub/clash/outgoing/abell_383/HST/images/mosaicdrizzle_image_pipeline/scale_65mas/a383_mosaic_065mas_acs_wfc3ir_total_drz_20110825.fits.gz
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+fk5
+polygon(42.033743,-3.4879186,42.019171,-3.4934358,42.016659,-3.4898247,42.007112,-3.4977491,41.97847,-3.5067763,41.980278,-3.5198165,41.972037,-3.5267375,41.983293,-3.5417842,41.985604,-3.5596392,41.983594,-3.5639524,42.01475,-3.5778957,42.0248,-3.5568308,42.02691,-3.5549249,42.041483,-3.5516144,42.040779,-3.5452949,42.049523,-3.5415832,42.048316,-3.5374706,42.048216,-3.536969,42.048015,-3.5364174,42.048718,-3.5357653,42.048618,-3.5355647,42.048668,-3.5354142,42.04706,-3.5329568) # color=purple width=3
